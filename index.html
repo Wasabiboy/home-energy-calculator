@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NZ Home Battery Storage Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .section h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .input-row {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #34495e;
+        }
+        
+        input, select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin: 20px 0;
+            transition: transform 0.2s;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .results {
+            background: #e8f5e8;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 5px solid #27ae60;
+        }
+        
+        .results h3 {
+            color: #27ae60;
+            margin-top: 0;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #d5eddb;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-value {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            color: #856404;
+        }
+        
+        .tip {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            color: #155724;
+        }
+        
+        @media (max-width: 768px) {
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔋 Battery Storage Calculator</h1>
+        <p class="subtitle">For Auckland NZ Home - 230V/60A Supply</p>
+        
+        <div class="section">
+            <h3>🏠 House Base Load</h3>
+            <div class="input-group">
+                <div class="input-row">
+                    <label for="baseLoad">Base Load (kW)</label>
+                    <input type="number" id="baseLoad" value="2.5" step="0.1">
+                    <small>Typical 3BR home: lights, appliances, etc.</small>
+                </div>
+                <div class="input-row">
+                    <label for="baseHours">Hours per day</label>
+                    <input type="number" id="baseHours" value="24" step="1">
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>🛁 Spa Pools (3 units)</h3>
+            <div class="input-group">
+                <div class="input-row">
+                    <label for="spaPower">Power per spa (kW)</label>
+                    <input type="number" id="spaPower" value="6" step="0.5">
+                    <small>Typical 6kW heater + pumps</small>
+                </div>
+                <div class="input-row">
+                    <label for="spaHours">Hours per day (per spa)</label>
+                    <input type="number" id="spaHours" value="3" step="0.5">
+                </div>
+            </div>
+            <div class="input-group">
+                <div class="input-row">
+                    <label for="spaSimultaneous">Spas running simultaneously</label>
+                    <select id="spaSimultaneous">
+                        <option value="1">1 spa at a time</option>
+                        <option value="2">2 spas at a time</option>
+                        <option value="3">All 3 spas</option>
+                    </select>
+                </div>
+                <div class="input-row">
+                    <label for="spaUsage">Usage pattern</label>
+                    <select id="spaUsage">
+                        <option value="evening">Evening use (6-10pm)</option>
+                        <option value="spread">Spread throughout day</option>
+                        <option value="winter">Winter heating (longer)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>🚗 EV Charging</h3>
+            <div class="input-group">
+                <div class="input-row">
+                    <label for="evPower">Charging power (kW)</label>
+                    <select id="evPower">
+                        <option value="3.7">3.7kW (16A, single phase)</option>
+                        <option value="7.4">7.4kW (32A, single phase)</option>
+                        <option value="11">11kW (16A, three phase)</option>
+                        <option value="22">22kW (32A, three phase)</option>
+                    </select>
+                </div>
+                <div class="input-row">
+                    <label for="evBattery">EV battery size (kWh)</label>
+                    <input type="number" id="evBattery" value="60" step="5">
+                </div>
+            </div>
+            <div class="input-group">
+                <div class="input-row">
+                    <label for="evFrequency">Charging frequency</label>
+                    <select id="evFrequency">
+                        <option value="daily">Daily (partial charge)</option>
+                        <option value="alternate">Every 2nd day</option>
+                        <option value="weekly">2-3 times per week</option>
+                    </select>
+                </div>
+                <div class="input-row">
+                    <label for="evChargeAmount">Charge amount (%)</label>
+                    <input type="number" id="evChargeAmount" value="60" step="5">
+                    <small>How much of battery to charge</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>🏊 Swimming Pool</h3>
+            <div class="input-group">
+                <div class="input-row">
+                    <label for="poolPump">Pool pump (kW)</label>
+                    <input type="number" id="poolPump" value="1.5" step="0.1">
+                </div>
+                <div class="input-row">
+                    <label for="poolPumpHours">Pump hours/day</label>
+                    <input type="number" id="poolPumpHours" value="8" step="0.5">
+                </div>
+            </div>
+            <div class="input-group">
+                <div class="input-row">
+                    <label for="poolHeater">Pool heater (kW)</label>
+                    <input type="number" id="poolHeater" value="15" step="1">
+                    <small>Heat pump or gas backup</small>
+                </div>
+                <div class="input-row">
+                    <label for="poolHeaterHours">Heater hours/day</label>
+                    <input type="number" id="poolHeaterHours" value="2" step="0.5">
+                    <small>Seasonal heating</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>⚡ System Parameters</h3>
+            <div class="input-group">
+                <div class="input-row">
+                    <label for="backupHours">Backup duration (hours)</label>
+                    <select id="backupHours">
+                        <option value="4">4 hours (evening peak)</option>
+                        <option value="8">8 hours (overnight)</option>
+                        <option value="12">12 hours (extended outage)</option>
+                        <option value="24">24 hours (full day backup)</option>
+                    </select>
+                </div>
+                <div class="input-row">
+                    <label for="efficiency">System efficiency (%)</label>
+                    <input type="number" id="efficiency" value="90" step="1">
+                </div>
+            </div>
+            <div class="input-group">
+                <div class="input-row">
+                    <label for="depthDischarge">Depth of discharge (%)</label>
+                    <input type="number" id="depthDischarge" value="85" step="5">
+                    <small>Max battery usage (LiFePO4)</small>
+                </div>
+                <div class="input-row">
+                    <label for="safetyMargin">Safety margin (%)</label>
+                    <input type="number" id="safetyMargin" value="20" step="5">
+                </div>
+            </div>
+        </div>
+        
+        <button class="calculate-btn" onclick="calculate()">Calculate Battery Requirements</button>
+        
+        <div id="results" class="results" style="display: none;">
+            <h3>📊 Battery Storage Results</h3>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            // Get inputs
+            const baseLoad = parseFloat(document.getElementById('baseLoad').value);
+            const baseHours = parseFloat(document.getElementById('baseHours').value);
+            
+            const spaPower = parseFloat(document.getElementById('spaPower').value);
+            const spaHours = parseFloat(document.getElementById('spaHours').value);
+            const spaSimultaneous = parseInt(document.getElementById('spaSimultaneous').value);
+            const spaUsage = document.getElementById('spaUsage').value;
+            
+            const evPower = parseFloat(document.getElementById('evPower').value);
+            const evBattery = parseFloat(document.getElementById('evBattery').value);
+            const evFrequency = document.getElementById('evFrequency').value;
+            const evChargeAmount = parseFloat(document.getElementById('evChargeAmount').value) / 100;
+            
+            const poolPump = parseFloat(document.getElementById('poolPump').value);
+            const poolPumpHours = parseFloat(document.getElementById('poolPumpHours').value);
+            const poolHeater = parseFloat(document.getElementById('poolHeater').value);
+            const poolHeaterHours = parseFloat(document.getElementById('poolHeaterHours').value);
+            
+            const backupHours = parseFloat(document.getElementById('backupHours').value);
+            const efficiency = parseFloat(document.getElementById('efficiency').value) / 100;
+            const depthDischarge = parseFloat(document.getElementById('depthDischarge').value) / 100;
+            const safetyMargin = parseFloat(document.getElementById('safetyMargin').value) / 100;
+            
+            // Calculate daily energy needs
+            const baseEnergy = baseLoad * baseHours;
+            
+            // Spa energy (adjusted for usage pattern)
+            let spaMultiplier = 1;
+            if (spaUsage === 'winter') spaMultiplier = 1.5;
+            if (spaUsage === 'evening') spaMultiplier = 0.8;
+            const spaEnergy = spaPower * spaHours * spaSimultaneous * spaMultiplier;
+            
+            // EV energy per charge
+            const evEnergyPerCharge = evBattery * evChargeAmount;
+            let evFreqMultiplier = 1;
+            if (evFrequency === 'alternate') evFreqMultiplier = 0.5;
+            if (evFrequency === 'weekly') evFreqMultiplier = 0.35;
+            const evEnergyDaily = evEnergyPerCharge * evFreqMultiplier;
+            
+            // Pool energy
+            const poolEnergy = (poolPump * poolPumpHours) + (poolHeater * poolHeaterHours);
+            
+            // Total daily energy
+            const totalDailyEnergy = baseEnergy + spaEnergy + evEnergyDaily + poolEnergy;
+            
+            // Peak power calculation
+            const basePeak = baseLoad;
+            const spaPeak = spaPower * spaSimultaneous;
+            const evPeak = evPower;
+            const poolPeak = poolPump + poolHeater;
+            
+            // Maximum concurrent load (realistic scenario)
+            const maxConcurrentLoad = Math.max(
+                basePeak + spaPeak, // Spas + house
+                basePeak + evPeak,  // EV + house
+                basePeak + poolPeak, // Pool + house
+                basePeak + spaPeak * 0.5 + poolPump // Partial spa + pool pump
+            );
+            
+            // Battery sizing for backup period
+            const backupEnergy = maxConcurrentLoad * backupHours;
+            
+            // Account for system losses and safety margins
+            const batteryCapacityRequired = (backupEnergy / efficiency / depthDischarge) * (1 + safetyMargin);
+            
+            // NZ supply limits check
+            const maxSupplyPower = 230 * 60 / 1000; // 13.8kW
+            const powerLimited = maxConcurrentLoad > maxSupplyPower;
+            
+            // Display results
+            let resultHTML = `
+                <div class="result-item">
+                    <span>Daily Energy Consumption:</span>
+                    <span class="result-value">${totalDailyEnergy.toFixed(1)} kWh/day</span>
+                </div>
+                <div class="result-item">
+                    <span>• Base house load:</span>
+                    <span class="result-value">${baseEnergy.toFixed(1)} kWh</span>
+                </div>
+                <div class="result-item">
+                    <span>• Spa pools (${spaSimultaneous} concurrent):</span>
+                    <span class="result-value">${spaEnergy.toFixed(1)} kWh</span>
+                </div>
+                <div class="result-item">
+                    <span>• EV charging (avg/day):</span>
+                    <span class="result-value">${evEnergyDaily.toFixed(1)} kWh</span>
+                </div>
+                <div class="result-item">
+                    <span>• Swimming pool:</span>
+                    <span class="result-value">${poolEnergy.toFixed(1)} kWh</span>
+                </div>
+                
+                <div class="result-item" style="margin-top: 15px; font-size: 1.1em;">
+                    <span><strong>Peak Power Demand:</strong></span>
+                    <span class="result-value">${maxConcurrentLoad.toFixed(1)} kW</span>
+                </div>
+                
+                <div class="result-item" style="margin-top: 15px; font-size: 1.2em; color: #27ae60;">
+                    <span><strong>Recommended Battery Capacity:</strong></span>
+                    <span class="result-value">${batteryCapacityRequired.toFixed(0)} kWh</span>
+                </div>
+                
+                <div class="result-item">
+                    <span>Backup duration:</span>
+                    <span class="result-value">${backupHours} hours</span>
+                </div>
+                
+                <div class="result-item">
+                    <span>System efficiency considered:</span>
+                    <span class="result-value">${(efficiency*100).toFixed(0)}%</span>
+                </div>
+            `;
+            
+            if (powerLimited) {
+                resultHTML += `
+                    <div class="warning">
+                        <strong>⚠️ Power Supply Limitation:</strong><br>
+                        Your peak demand (${maxConcurrentLoad.toFixed(1)}kW) exceeds your 60A supply limit (${maxSupplyPower.toFixed(1)}kW).
+                        Consider load management or upgrading your electrical supply.
+                    </div>
+                `;
+            }
+            
+            // Battery recommendations
+            const batteryOptions = [
+                { size: 10, name: "Small residential (Tesla Powerwall 2)" },
+                { size: 20, name: "Medium residential system" },
+                { size: 30, name: "Large residential system" },
+                { size: 50, name: "Premium whole-home backup" },
+                { size: 75, name: "Extended backup system" },
+                { size: 100, name: "Commercial-grade system" }
+            ];
+            
+            let recommendedOption = batteryOptions.find(option => option.size >= batteryCapacityRequired);
+            if (!recommendedOption) recommendedOption = batteryOptions[batteryOptions.length - 1];
+            
+            resultHTML += `
+                <div class="tip">
+                    <strong>💡 Recommendation:</strong><br>
+                    Consider a ${recommendedOption.size}kWh system (${recommendedOption.name}).<br>
+                    This provides ${backupHours}-hour backup with ${(safetyMargin*100).toFixed(0)}% safety margin.
+                </div>
+                
+                <div class="tip">
+                    <strong>🔧 NZ-Specific Notes:</strong><br>
+                    • Your 230V/60A supply provides up to ${maxSupplyPower.toFixed(1)}kW<br>
+                    • Consider time-of-use tariffs to optimize battery charging<br>
+                    • Check with your electricity retailer about battery feed-in tariffs<br>
+                    • Ensure compliance with AS/NZS 4777 grid connection standards
+                </div>
+            `;
+            
+            document.getElementById('resultContent').innerHTML = resultHTML;
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Set realistic defaults for Auckland
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-calculate on page load for demo
+            setTimeout(calculate, 100);
+        });
+    </script>
+</body>
+</html>
